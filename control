@@ -1,0 +1,12 @@
+Package: com.saurik.patcyh
+Priority: optional
+Section: System
+Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
+Architecture: iphoneos-arm
+Version: 
+Description: patch for installd to support uikittools
+Name: Patcyh
+Author: Jay Freeman (saurik) <saurik@saurik.com>
+Depiction: http://cydia.saurik.com/info/com.saurik.patcyh/
+Depends: firmware (>= 8.3), coreutils-bin, ldid
+Tag: cydia::obsolete
