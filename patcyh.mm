@@ -82,9 +82,6 @@ static NSRange $NSString$rangeOfString$options$(NSString *self, SEL _cmd, NSStri
         if (![self hasPrefix:destiny])
             break;
 
-        if (![self hasSuffix:@".app"])
-            break;
-
         BOOL directory;
         if (![[NSFileManager defaultManager] fileExistsAtPath:self isDirectory:&directory])
             break;
