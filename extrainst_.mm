@@ -37,8 +37,9 @@ int main(int argc, const char *argv[]) {
 
     NSAutoreleasePool *pool([[NSAutoreleasePool alloc] init]);
 
-    if (!PatchLaunch(false, false))
+    if (!PatchLaunch(kCFCoreFoundationVersionNumber < 1200, false))
         return 1;
+
     if (!PatchInstall(false, false))
         return 1;
 
