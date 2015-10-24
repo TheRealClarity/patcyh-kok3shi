@@ -45,14 +45,73 @@ static NSArray *$MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$err
         [items addObject:[NSURL fileURLWithPathComponents:[prefix arrayByAddingObjectsFromArray:[components subarrayWithRange:NSMakeRange(skip, [components count] - skip)]]]];
     }
 
+    NSLog(@"items = %@", items);
     return items;
+}
+
+static NSString *(*_NSURL$path)(NSURL *self, SEL _cmd);
+
+static NSString *$NSURL$path(NSURL *self, SEL _cmd) {
+    return [[_NSURL$path(self, _cmd) mutableCopy] autorelease];
+}
+
+static NSRange (*_NSString$rangeOfString$options$)(NSString *self, SEL _cmd, NSString *value, NSStringCompareOptions options);
+
+static NSRange $NSString$rangeOfString$options$(NSString *self, SEL _cmd, NSString *value, NSStringCompareOptions options) {
+    if ([value isEqualToString:@".app/"]) do {
+        char *real(realpath("/Applications", NULL));
+        NSString *destiny([NSString stringWithUTF8String:real]);
+        free(real);
+
+        if ([destiny isEqualToString:@"/Applications"])
+            break;
+
+        destiny = [destiny stringByAppendingString:@"/"];
+        if (![self hasPrefix:destiny])
+            break;
+
+        if (![self hasSuffix:@".app"])
+            break;
+
+        BOOL directory;
+        if (![[NSFileManager defaultManager] fileExistsAtPath:self isDirectory:&directory])
+            break;
+        if (!directory)
+            break;
+
+        NSLog(@"path = %@", self);
+        // the trailing / allows lsd to "restart" its verification attempt
+        [(NSMutableString *) self setString:[NSString stringWithFormat:@"/Applications/%@/", [self substringFromIndex:[destiny length]]]];
+    } while (false);
+
+    return _NSString$rangeOfString$options$(self, _cmd, value, options);
 }
 
 __attribute__((__constructor__))
 static void initialize() {
     $MIFileManager = objc_getClass("MIFileManager");
-    SEL sel(@selector(urlsForItemsInDirectoryAtURL:ignoringSymlinks:error:));
-    Method method(class_getInstanceMethod($MIFileManager, sel));
-    _MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$error$ = reinterpret_cast<NSArray *(*)(MIFileManager *, SEL, NSURL *, BOOL, NSError *)>(method_getImplementation(method));
-    method_setImplementation(method, reinterpret_cast<IMP>(&$MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$error$));
+
+    if ($MIFileManager != Nil) {
+        SEL sel(@selector(urlsForItemsInDirectoryAtURL:ignoringSymlinks:error:));
+        if (Method method = class_getInstanceMethod($MIFileManager, sel)) {
+            _MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$error$ = reinterpret_cast<NSArray *(*)(MIFileManager *, SEL, NSURL *, BOOL, NSError *)>(method_getImplementation(method));
+            method_setImplementation(method, reinterpret_cast<IMP>(&$MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$error$));
+        }
+    }
+
+    if (Class $NSURL = objc_getClass("NSURL")) {
+        SEL sel(@selector(path));
+        if (Method method = class_getInstanceMethod($NSURL, sel)) {
+            _NSURL$path = reinterpret_cast<NSString *(*)(NSURL *, SEL)>(method_getImplementation(method));
+            method_setImplementation(method, reinterpret_cast<IMP>(&$NSURL$path));
+        }
+    }
+
+    if (Class $NSString = objc_getClass("NSString")) {
+        SEL sel(@selector(rangeOfString:options:));
+        if (Method method = class_getInstanceMethod($NSString, sel)) {
+            _NSString$rangeOfString$options$ = reinterpret_cast<NSRange (*)(NSString *, SEL, NSString *, NSStringCompareOptions)>(method_getImplementation(method));
+            method_setImplementation(method, reinterpret_cast<IMP>(&$NSString$rangeOfString$options$));
+        }
+    }
 }

@@ -35,7 +35,8 @@ int main(int argc, const char *argv[]) {
 
     if (!PatchInstall(true, abort))
         return 1;
-    system("launchctl stop com.apple.mobile.installd");
+    if (!PatchLaunch(true, abort))
+        return 1;
 
     [pool release];
     return 0;

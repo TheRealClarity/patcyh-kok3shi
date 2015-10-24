@@ -37,9 +37,10 @@ int main(int argc, const char *argv[]) {
 
     NSAutoreleasePool *pool([[NSAutoreleasePool alloc] init]);
 
+    if (!PatchLaunch(false, false))
+        return 1;
     if (!PatchInstall(false, false))
         return 1;
-    system("launchctl stop com.apple.mobile.installd");
 
     [pool release];
     return 0;

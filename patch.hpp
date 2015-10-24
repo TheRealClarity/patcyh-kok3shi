@@ -22,6 +22,8 @@
 #ifndef PATCH_HPP
 #define PATCH_HPP
 
+#include <string>
+
 #include <dlfcn.h>
 
 #include <sys/mman.h>
@@ -30,7 +32,6 @@
 
 #include <mach-o/loader.h>
 
-#define INSTALLD "/usr/libexec/installd"
 #define LIBUICACHE "/usr/lib/libpatcyh.dylib"
 
 static void *(*$memmem)(const void *, size_t, const void *, size_t) = reinterpret_cast<void *(*)(const void *, size_t, const void *, size_t)>(dlsym(RTLD_DEFAULT, "memmem"));
@@ -100,13 +101,13 @@ static bool PatchInstall(bool uninstall, void *data) {
     return true;
 }
 
-static bool PatchInstall(bool uninstall, bool abort) {
+static bool Patch(const std::string &path, const std::string &service, bool uninstall, bool abort) {
     if (!abort && system("ldid --") != 0) {
         fprintf(stderr, "this package requires ldid to be installed\n");
         return false;
     }
 
-    int fd(open(INSTALLD, O_RDWR));
+    int fd(open(path.c_str(), O_RDWR));
     if (fd == -1)
         return false;
 
@@ -139,12 +140,22 @@ static bool PatchInstall(bool uninstall, bool abort) {
     munmap(data, size);
 
     if (changed) {
-        system("ldid -s "INSTALLD"");
-        system("cp -af "INSTALLD" "INSTALLD"_");
-        system("mv -f "INSTALLD"_ "INSTALLD"");
+        system(("ldid -s " + path + "").c_str());
+        system(("cp -af " + path + " " + path + "_").c_str());
+        system(("mv -f " + path + "_ " + path + "").c_str());
+        system(("launchctl stop " + service + "").c_str());
     }
 
     return true;
+}
+
+
+static bool PatchInstall(bool uninstall, bool abort) {
+    return Patch("/usr/libexec/installd", "com.apple.mobile.installd", uninstall, abort);
+}
+
+static bool PatchLaunch(bool uninstall, bool abort) {
+    return Patch("/usr/libexec/lsd", "com.apple.lsd", uninstall, abort);
 }
 
 #endif//PATCH_HPP

@@ -12,6 +12,7 @@ clean:
 flags := -Os -Werror
 flags += -framework CoreFoundation
 flags += -framework Foundation
+flags += -marm
 
 lib%.dylib: %.mm
 	cycc -i2.0 -o$@ -- -dynamiclib $(flags) $(filter-out %.hpp,$^) $($@) -lobjc
