@@ -45,7 +45,6 @@ static NSArray *$MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$err
         [items addObject:[NSURL fileURLWithPathComponents:[prefix arrayByAddingObjectsFromArray:[components subarrayWithRange:NSMakeRange(skip, [components count] - skip)]]]];
     }
 
-    NSLog(@"items = %@", items);
     return items;
 }
 
@@ -79,7 +78,6 @@ static NSRange $NSString$rangeOfString$options$(NSString *self, SEL _cmd, NSStri
         if (!directory)
             break;
 
-        NSLog(@"path = %@", self);
         // the trailing / allows lsd to "restart" its verification attempt
         [(NSMutableString *) self setString:[NSString stringWithFormat:@"/Applications/%@/", [self substringFromIndex:[destiny length]]]];
     } while (false);
