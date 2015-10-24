@@ -19,8 +19,11 @@
 **/
 /* }}} */
 
+#include <pthread.h>
 #include <objc/runtime.h>
 #include <Foundation/Foundation.h>
+
+@class LSDXPCServer;
 
 @interface MIFileManager
 + (MIFileManager *) defaultManager;
@@ -28,6 +31,8 @@
 @end
 
 static Class $MIFileManager;
+
+static pthread_key_t key_;
 
 static NSArray *(*_MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$error$)(MIFileManager *self, SEL _cmd, NSURL *url, BOOL ignoring, NSError *error);
 
@@ -51,13 +56,21 @@ static NSArray *$MIFileManager$urlsForItemsInDirectoryAtURL$ignoringSymlinks$err
 static NSString *(*_NSURL$path)(NSURL *self, SEL _cmd);
 
 static NSString *$NSURL$path(NSURL *self, SEL _cmd) {
-    return [[_NSURL$path(self, _cmd) mutableCopy] autorelease];
+    NSString *path(_NSURL$path(self, _cmd));
+    if (pthread_getspecific(key_) != NULL)
+        path = [[path mutableCopy] autorelease];
+    return path;
 }
 
 static NSRange (*_NSString$rangeOfString$options$)(NSString *self, SEL _cmd, NSString *value, NSStringCompareOptions options);
 
 static NSRange $NSString$rangeOfString$options$(NSString *self, SEL _cmd, NSString *value, NSStringCompareOptions options) {
-    if ([value isEqualToString:@".app/"]) do {
+    do {
+        if (pthread_getspecific(key_) == NULL)
+            break;
+        if (![value isEqualToString:@".app/"])
+            break;
+
         char *real(realpath("/Applications", NULL));
         NSString *destiny([NSString stringWithUTF8String:real]);
         free(real);
@@ -85,8 +98,21 @@ static NSRange $NSString$rangeOfString$options$(NSString *self, SEL _cmd, NSStri
     return _NSString$rangeOfString$options$(self, _cmd, value, options);
 }
 
+static id (*_LSDXPCServer$canOpenURL$connection$)(LSDXPCServer *self, SEL _cmd, id url, id connection);
+
+static id $LSDXPCServer$canOpenURL$connection$(LSDXPCServer *self, SEL _cmd, id url, id connection) {
+    pthread_setspecific(key_, connection);
+    @try {
+        return _LSDXPCServer$canOpenURL$connection$(self, _cmd, url, connection);
+    } @finally {
+        pthread_setspecific(key_, NULL);
+    }
+}
+
 __attribute__((__constructor__))
 static void initialize() {
+    pthread_key_create(&key_, NULL);
+
     $MIFileManager = objc_getClass("MIFileManager");
 
     if ($MIFileManager != Nil) {
@@ -110,6 +136,14 @@ static void initialize() {
         if (Method method = class_getInstanceMethod($NSString, sel)) {
             _NSString$rangeOfString$options$ = reinterpret_cast<NSRange (*)(NSString *, SEL, NSString *, NSStringCompareOptions)>(method_getImplementation(method));
             method_setImplementation(method, reinterpret_cast<IMP>(&$NSString$rangeOfString$options$));
+        }
+    }
+
+    if (Class $LSDXPCServer = objc_getClass("LSDXPCServer")) {
+        SEL sel(@selector(canOpenURL:connection:));
+        if (Method method = class_getInstanceMethod($LSDXPCServer, sel)) {
+            _LSDXPCServer$canOpenURL$connection$ = reinterpret_cast<id (*)(LSDXPCServer *, SEL, id, id)>(method_getImplementation(method));
+            method_setImplementation(method, reinterpret_cast<IMP>(&$LSDXPCServer$canOpenURL$connection$));
         }
     }
 }
