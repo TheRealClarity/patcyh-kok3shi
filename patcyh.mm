@@ -1,5 +1,5 @@
 /* patcyh - you should pronounce it like patch
- * Copyright (C) 2015  Jay Freeman (saurik)
+ * Copyright (C) 2015-2016  Jay Freeman (saurik)
 */
 
 /* GNU General Public License, Version 3 {{{ */
