@@ -37,10 +37,12 @@ int main(int argc, const char *argv[]) {
 
     NSAutoreleasePool *pool([[NSAutoreleasePool alloc] init]);
 
-    if (!PatchLaunch(kCFCoreFoundationVersionNumber < 1200, false))
+    bool modern(kCFCoreFoundationVersionNumber > 1242);
+
+    if (!PatchLaunch(modern || kCFCoreFoundationVersionNumber < 1200, false))
         return 1;
 
-    if (!PatchInstall(false, false))
+    if (!PatchInstall(modern, false))
         return 1;
 
     [pool release];

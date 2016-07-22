@@ -22,6 +22,9 @@ lib%.dylib: %.mm
 
 package: all $(control)
 	sudo rm -rf _
+	mkdir -p _/Library/MobileSubstrate/DynamicLibraries
+	cp -a patcyh.plist _/Library/MobileSubstrate/DynamicLibraries
+	ln -s /usr/lib/libpatcyh.dylib _/Library/MobileSubstrate/DynamicLibraries/patcyh.dylib
 	mkdir -p _/usr/lib
 	cp -a $(library) _/usr/lib
 	mkdir -p _/DEBIAN
