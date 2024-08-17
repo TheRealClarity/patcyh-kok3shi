@@ -59,7 +59,7 @@ static bool PatchInstall(bool uninstall, void *data) {
             return true;
 
         if (i != header->ncmds - 1) {
-            fprintf(stderr, "load command not in final position %zd %zd\n", i, header->ncmds);
+            fprintf(stderr, "load command not in final position %zd %u\n", i, header->ncmds);
             return false;
         }
 

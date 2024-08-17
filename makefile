@@ -15,10 +15,10 @@ flags += -framework Foundation
 flags += -marm
 
 lib%.dylib: %.mm
-	cycc -i2.0 -o$@ -- -dynamiclib $(flags) $(filter-out %.hpp,$^) $($@) -lobjc
+	./cycc -i7.0 -o$@ -- -dynamiclib $(flags) $(filter-out %.hpp,$^) $($@) -lobjc
 
 %: %.mm patch.hpp
-	cycc -i2.0 -o$@ -- $(filter-out %.hpp,$^) $(flags) $($@)
+	./cycc -i7.0 -o$@ -- $(filter-out %.hpp,$^) $(flags) $($@)
 
 package: all $(control)
 	sudo rm -rf _
@@ -35,5 +35,5 @@ package: all $(control)
 	ln -sf debs/$(package)_$$(./version.sh)_iphoneos-arm.deb $(package).deb
 	sudo chown -R 0 _
 	sudo chgrp -R 0 _
-	dpkg-deb -b _ $(package).deb
+	dpkg-deb -z9 -Zgzip -b _ $(package).deb
 	readlink $(package).deb

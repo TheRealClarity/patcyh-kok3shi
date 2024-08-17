@@ -3,7 +3,7 @@ Priority: optional
 Section: System
 Maintainer: Jay Freeman (saurik) <saurik@saurik.com>
 Architecture: iphoneos-arm
-Version: 
+Version: 1.2.1-kok3shi
 Description: patch for installd to support uikittools
 Name: Patcyh
 Author: Jay Freeman (saurik) <saurik@saurik.com>

@@ -37,9 +37,10 @@ int main(int argc, const char *argv[]) {
 
     NSAutoreleasePool *pool([[NSAutoreleasePool alloc] init]);
 
-    bool modern(kCFCoreFoundationVersionNumber > 1242);
+    // disable binary patching lsd and installd on 9 and above only
+    bool modern(kCFCoreFoundationVersionNumber > 1200);
 
-    if (!PatchLaunch(modern || kCFCoreFoundationVersionNumber < 1200, false))
+    if (!PatchLaunch(modern, false))
         return 1;
 
     if (!PatchInstall(modern, false))
