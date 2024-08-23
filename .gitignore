@@ -4,3 +4,5 @@ extrainst_
 postrm
 *.dylib
 *.deb
+.theos
+packages/

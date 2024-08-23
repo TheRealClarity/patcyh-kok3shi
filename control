@@ -8,5 +8,5 @@ Description: patch for installd to support uikittools
 Name: Patcyh
 Author: Jay Freeman (saurik) <saurik@saurik.com>
 Depiction: http://cydia.saurik.com/info/com.saurik.patcyh/
-Depends: firmware (>= 8.3), coreutils-bin, ldid
+Depends: firmware (>= 8.3), coreutils-bin, ldid, mobilesubstrate
 Tag: cydia::obsolete

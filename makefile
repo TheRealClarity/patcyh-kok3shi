@@ -1,39 +1,12 @@
-library := libpatcyh.dylib
-package := com.saurik.patcyh
-control := extrainst_ postrm
+ARCHS = arm64 armv7
+TARGET := iphone:clang:11.4:8.3
 
-all: $(library)
+FINALPACKAGE=1
 
-clean:
-	rm -f $(library) $(control)
+include $(THEOS)/makefiles/common.mk
 
-.PHONY: all clean package
+TWEAK_NAME = patcyh
 
-flags := -Os -Werror
-flags += -framework CoreFoundation
-flags += -framework Foundation
-flags += -marm
+patcyh_FILES = patcyh.mm
 
-lib%.dylib: %.mm
-	./cycc -i7.0 -o$@ -- -dynamiclib $(flags) $(filter-out %.hpp,$^) $($@) -lobjc
-
-%: %.mm patch.hpp
-	./cycc -i7.0 -o$@ -- $(filter-out %.hpp,$^) $(flags) $($@)
-
-package: all $(control)
-	sudo rm -rf _
-	mkdir -p _/Library/MobileSubstrate/DynamicLibraries
-	cp -a patcyh.plist _/Library/MobileSubstrate/DynamicLibraries
-	ln -s /usr/lib/libpatcyh.dylib _/Library/MobileSubstrate/DynamicLibraries/patcyh.dylib
-	mkdir -p _/usr/lib
-	cp -a $(library) _/usr/lib
-	mkdir -p _/DEBIAN
-	./control.sh _ >_/DEBIAN/control
-	cp -a extrainst_ _/DEBIAN/
-	cp -a postrm _/DEBIAN/
-	mkdir -p debs
-	ln -sf debs/$(package)_$$(./version.sh)_iphoneos-arm.deb $(package).deb
-	sudo chown -R 0 _
-	sudo chgrp -R 0 _
-	dpkg-deb -z9 -Zgzip -b _ $(package).deb
-	readlink $(package).deb
+include $(THEOS_MAKE_PATH)/tweak.mk
